@@ -1,0 +1,16 @@
+[package]
+name = "mastdoon-api"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+reqwest = { version = "0.12.9", features = ["json", "multipart", "stream"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+thiserror = "2.0.18"
+tokio = { version = "1.49.0", features = ["full"] }
+url = "2.5"
+async-trait = "0.1"
+tokio-util = { version = "0.7", features = ["codec"] }
+tokio-tungstenite = { version = "0.23", features = ["rustls-tls-native-roots"] }
+futures-util = "0.3"
