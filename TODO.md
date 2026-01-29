@@ -24,7 +24,7 @@ The following endpoints and features are currently missing from the `mastdoon-ap
 - [ ] **Instance Rules**: Formal rules established by the server.
 
 ## 4. Admin API (Advanced)
-*Note: These require special admin-level scopes and are usually only used for moderation bots.*
+> These require special admin-level scopes and are usually only used for moderation bots.
 - [ ] **Account Moderation**: Actioning, silencing, and suspending accounts.
 - [ ] **Report Management**: Handling incoming reports.
 - [ ] **Domain Federation**: Managing allowed/blocked domains at the server level.

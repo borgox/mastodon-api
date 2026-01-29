@@ -60,7 +60,7 @@ impl StreamingClient {
     /// - `user`: Events related to the authenticated user.
     /// - `public`: All public statuses.
     /// - `direct`: Direct messages/conversations.
-    /// - `hashtag`: Statuses containing a specific tag (requires `tag` parameter in URL usually, but this helper is generic).
+    /// - `hashtag`: Statuses containing a specific tag.
     ///
     /// Returns a pinned stream of `MastodonEvent`s.
     pub async fn subscribe(
