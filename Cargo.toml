@@ -1,5 +1,5 @@
 [package]
-name = "mastdoon-api"
+name = "mastodon-api"
 version = "0.1.0"
 edition = "2024"
 

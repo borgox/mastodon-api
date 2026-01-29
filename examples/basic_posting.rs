@@ -1,5 +1,5 @@
-use mastdoon_api::MastodonClient;
-use mastdoon_api::methods::statuses::CreateStatusParams;
+use mastodon_api::MastodonClient;
+use mastodon_api::methods::statuses::CreateStatusParams;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -11,7 +11,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Posting a simple status...");
     let status = client
         .statuses()
-        .create_simple("Hello from the MastDoon API Wrapper! 🦀")
+        .create_simple("Hello from the Mastodon API Wrapper! 🦀")
         .await?;
     println!("Posted status with ID: {}", status.id);
 

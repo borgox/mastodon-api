@@ -1,6 +1,6 @@
 use futures_util::StreamExt;
-use mastdoon_api::MastodonClient;
-use mastdoon_api::streaming::MastodonEvent;
+use mastodon_api::MastodonClient;
+use mastodon_api::streaming::MastodonEvent;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

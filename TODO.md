@@ -1,6 +1,6 @@
 # TODO: Full API Coverage Checklist
 
-The following endpoints and features are currently missing from the `mastdoon-api` wrapper. These are prioritized by their usefulness for bot developers.
+The following endpoints and features are currently missing from the `mastodon-api` wrapper. These are prioritized by their usefulness for bot developers.
 
 ## 1. High Priority (Social & Interaction)
 - [ ] **Follow Requests**: Manage incoming follow requests (`GET /api/v1/follow_requests`, `POST /api/v1/follow_requests/:id/authorize`).
