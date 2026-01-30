@@ -4,8 +4,7 @@ use mastodon_api::methods::statuses::CreateStatusParams;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 1. Initialize the client
-    let client = MastodonClient::new("https://mastodonte.exelvi.tech")
-        .with_token("IYwPRGIlygcAnjHQrm0pXvtqkaxdj6uYaTzGVwl0XJw");
+    let client = MastodonClient::new("https://mastdoon.social").with_token("YOUR_TOKEN");
 
     // 2. Simple post
     println!("Posting a simple status...");

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["accounts","apps","conversations","emojis","filters","instance","lists","media","notifications","search","statuses","timelines","trends"]};

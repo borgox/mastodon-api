@@ -14,6 +14,15 @@ pub struct Notification {
 pub struct Tag {
     pub name: String,
     pub url: String,
+    pub history: Option<Vec<TagHistory>>,
+    pub following: Option<bool>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct TagHistory {
+    pub day: String,
+    pub uses: String,
+    pub accounts: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

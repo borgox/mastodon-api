@@ -4,8 +4,7 @@ use mastodon_api::streaming::MastodonEvent;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = MastodonClient::new("https://mastodon.social")
-        .with_token("IYwPRGIlygcAnjHQrm0pXvtqkaxdj6uYaTzGVwl0XJw");
+    let client = MastodonClient::new("https://mastodon.social").with_token("YOUR_TOKEN");
 
     println!("Connecting to 'user' stream (mentions and notifications)...");
     let mut stream = client.streaming().subscribe("user").await?;

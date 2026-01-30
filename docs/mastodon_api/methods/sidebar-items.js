@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["accounts","admin","announcements","apps","builders","conversations","domain_blocks","emojis","endorsements","filters","follow_requests","instance","lists","markers","media","notifications","preferences","push","reports","search","statuses","suggestions","tags","timelines","trends"]};

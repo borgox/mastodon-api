@@ -15,3 +15,7 @@ async-trait = "0.1"
 tokio-util = { version = "0.7", features = ["codec"] }
 tokio-tungstenite = { version = "0.23", features = ["rustls-tls-native-roots"] }
 futures-util = "0.3"
+
+[dev-dependencies]
+mockito = "1.4"
+tokio = { version = "1.49.0", features = ["full", "macros"] }

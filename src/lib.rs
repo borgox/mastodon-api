@@ -25,9 +25,15 @@
 //! Media must be uploaded separately to get an ID before being attached to a new status.
 //!
 //! # Example
-//! ```rust
-//! let client = MastodonClient::new("https://mastodon.social").with_token("your_token");
-//! client.statuses().create_simple("Hello from Rust!").await?;
+//! ```no_run
+//! use mastodon_api::MastodonClient;
+//!
+//! #[tokio::main]
+//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//!     let client = MastodonClient::new("https://mastodon.social").with_token("your_token");
+//!     client.statuses().create_simple("Hello from Rust!").await?;
+//!     Ok(())
+//! }
 //! ```
 
 pub mod error;
@@ -37,7 +43,10 @@ pub mod paging;
 pub mod streaming;
 
 pub use error::{MastodonError, Result};
-pub use models::{Account, Status};
+pub use models::{
+    Account, Announcement, AnnouncementReaction, FeaturedTag, Marker, Preferences, Relationship,
+    Report, Status, Suggestion, Tag, WebPushAlerts, WebPushSubscription,
+};
 
 use reqwest::{Client, RequestBuilder};
 use serde::de::DeserializeOwned;
@@ -45,6 +54,7 @@ use serde::de::DeserializeOwned;
 /// The main entry point for interacting with the Mastodon API.
 ///
 /// Use `MastodonClient::new` to create a new instance, and `with_token` to authenticate.
+#[derive(Clone)]
 pub struct MastodonClient {
     base_url: String,
     client: Client,
@@ -55,7 +65,8 @@ impl MastodonClient {
     /// Creates a new `MastodonClient` for the given instance URL.
     ///
     /// # Example
-    /// ```rust
+    /// ```
+    /// use mastodon_api::MastodonClient;
     /// let client = MastodonClient::new("https://mastodon.social");
     /// ```
     pub fn new(instance_url: &str) -> Self {
@@ -88,25 +99,66 @@ impl MastodonClient {
     }
 
     pub(crate) async fn send<T: DeserializeOwned>(&self, builder: RequestBuilder) -> Result<T> {
-        let mut builder = builder;
-        if let Some(token) = &self.access_token {
-            builder = builder.bearer_auth(token);
-        }
+        let mut retries = 0;
+        let max_retries = 3;
 
-        let response = builder.send().await?;
+        loop {
+            let mut current_builder = builder.try_clone().ok_or(MastodonError::ApiError {
+                status: reqwest::StatusCode::INTERNAL_SERVER_ERROR,
+                message: "Failed to clone request for retry".to_string(),
+            })?;
 
-        if !response.status().is_success() {
+            if let Some(token) = &self.access_token {
+                current_builder = current_builder.bearer_auth(token);
+            }
+
+            let response = current_builder.send().await?;
             let status = response.status();
-            let message = response.text().await.unwrap_or_default();
-            return Err(MastodonError::ApiError { status, message });
-        }
 
-        Ok(response.json().await?)
+            // Handle Rate Limiting
+            if status == reqwest::StatusCode::TOO_MANY_REQUESTS {
+                if retries < max_retries {
+                    if let Some(reset) = response.headers().get("X-RateLimit-Reset") {
+                        if let Ok(_) = reset.to_str() {
+                            let wait_secs = 2u64.pow(retries);
+                            tokio::time::sleep(std::time::Duration::from_secs(wait_secs)).await;
+                            retries += 1;
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            // Handle transient server errors (5xx)
+            if status.is_server_error() && retries < max_retries {
+                let wait_secs = 2u64.pow(retries);
+                tokio::time::sleep(std::time::Duration::from_secs(wait_secs)).await;
+                retries += 1;
+                continue;
+            }
+
+            if !status.is_success() {
+                let message = response.text().await.unwrap_or_default();
+                return Err(MastodonError::ApiError { status, message });
+            }
+
+            return Ok(response.json().await?);
+        }
     }
 
     /// Access account-related endpoints.
     pub fn accounts(&self) -> methods::accounts::AccountsHandler<'_> {
         methods::accounts::AccountsHandler::new(self)
+    }
+
+    /// Access follow request-related endpoints.
+    pub fn follow_requests(&self) -> methods::follow_requests::FollowRequestsHandler<'_> {
+        methods::follow_requests::FollowRequestsHandler::new(self)
+    }
+
+    /// Access server-wide announcements.
+    pub fn announcements(&self) -> methods::announcements::AnnouncementsHandler<'_> {
+        methods::announcements::AnnouncementsHandler::new(self)
     }
 
     /// Access status-related (posting) endpoints.
@@ -134,6 +186,46 @@ impl MastodonClient {
         methods::filters::FiltersHandler::new(self)
     }
 
+    /// Access tag management endpoints (followed and featured tags).
+    pub fn tags(&self) -> methods::tags::TagsHandler<'_> {
+        methods::tags::TagsHandler::new(self)
+    }
+
+    /// Access reading position sync (markers).
+    pub fn markers(&self) -> methods::markers::MarkersHandler<'_> {
+        methods::markers::MarkersHandler::new(self)
+    }
+
+    /// Access reports made by the authenticated user.
+    pub fn reports(&self) -> methods::reports::ReportsHandler<'_> {
+        methods::reports::ReportsHandler::new(self)
+    }
+
+    /// Access accounts endorsed (pinned) by the authenticated user.
+    pub fn endorsements(&self) -> methods::endorsements::EndorsementsHandler<'_> {
+        methods::endorsements::EndorsementsHandler::new(self)
+    }
+
+    /// Access domain blocks for the authenticated user.
+    pub fn domain_blocks(&self) -> methods::domain_blocks::DomainBlocksHandler<'_> {
+        methods::domain_blocks::DomainBlocksHandler::new(self)
+    }
+
+    /// Access user preferences.
+    pub fn preferences(&self) -> methods::preferences::PreferencesHandler<'_> {
+        methods::preferences::PreferencesHandler::new(self)
+    }
+
+    /// Access Web Push API subscriptions.
+    pub fn push(&self) -> methods::push::PushHandler<'_> {
+        methods::push::PushHandler::new(self)
+    }
+
+    /// Access administrative moderation and management endpoints.
+    pub fn admin(&self) -> methods::admin::AdminHandler<'_> {
+        methods::admin::AdminHandler::new(self)
+    }
+
     /// Access list management endpoints.
     pub fn lists(&self) -> methods::lists::ListsHandler<'_> {
         methods::lists::ListsHandler::new(self)
@@ -152,6 +244,11 @@ impl MastodonClient {
     /// Access global search endpoints.
     pub fn search(&self) -> methods::search::SearchHandler<'_> {
         methods::search::SearchHandler::new(self)
+    }
+
+    /// Access account suggestions for follow.
+    pub fn suggestions(&self) -> methods::suggestions::SuggestionsHandler<'_> {
+        methods::suggestions::SuggestionsHandler::new(self)
     }
 
     /// Access trending content endpoints.

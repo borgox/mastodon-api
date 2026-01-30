@@ -1,5 +1,6 @@
 use crate::MastodonClient;
 use crate::error::Result;
+use crate::methods::builders::StatusBuilder;
 use crate::models::Status;
 use serde::Serialize;
 
@@ -28,6 +29,11 @@ pub struct CreateStatusParams {
 impl<'a> StatusesHandler<'a> {
     pub fn new(client: &'a MastodonClient) -> Self {
         Self { client }
+    }
+
+    /// Returns a builder for creating a new status.
+    pub fn builder(&self, text: &str) -> StatusBuilder<'a> {
+        StatusBuilder::new(self.client, text)
     }
 
     /// Fetches a specific status by its ID.

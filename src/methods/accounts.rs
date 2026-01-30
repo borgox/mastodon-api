@@ -109,6 +109,36 @@ impl<'a> AccountsHandler<'a> {
         self.client.send(req).await
     }
 
+    /// Pins the given account to the authenticated user's profile.
+    ///
+    /// Parameters:
+    /// - `id`: The ID of the account to pin.
+    ///
+    /// Returns:
+    /// - `Result<crate::models::Relationship>`: The updated relationship.
+    ///
+    /// Corresponds to `POST /api/v1/accounts/:id/pin`.
+    pub async fn pin(&self, id: &str) -> Result<crate::models::Relationship> {
+        let url = format!("{}/api/v1/accounts/{}/pin", self.client.base_url(), id);
+        let req = self.client.http_client().post(&url);
+        self.client.send(req).await
+    }
+
+    /// Unpins the given account from the profile.
+    ///
+    /// Parameters:
+    /// - `id`: The ID of the account to unpin.
+    ///
+    /// Returns:
+    /// - `Result<crate::models::Relationship>`: The updated relationship.
+    ///
+    /// Corresponds to `POST /api/v1/accounts/:id/unpin`.
+    pub async fn unpin(&self, id: &str) -> Result<crate::models::Relationship> {
+        let url = format!("{}/api/v1/accounts/{}/unpin", self.client.base_url(), id);
+        let req = self.client.http_client().post(&url);
+        self.client.send(req).await
+    }
+
     /// Searches for accounts matching the given query.
     ///
     /// Parameters:
@@ -124,6 +154,24 @@ impl<'a> AccountsHandler<'a> {
         let mut req = self.client.http_client().get(&url).query(&[("q", query)]);
         if let Some(l) = limit {
             req = req.query(&[("limit", l.to_string())]);
+        }
+        self.client.send(req).await
+    }
+
+    /// Fetches the relationship between the authenticated user and the given accounts.
+    ///
+    /// Parameters:
+    /// - `ids`: A list of account IDs to check relationships for.
+    ///
+    /// Returns:
+    /// - `Result<Vec<crate::models::Relationship>>`: The relationships.
+    ///
+    /// Corresponds to `GET /api/v1/accounts/relationships`.
+    pub async fn relationships(&self, ids: &[String]) -> Result<Vec<crate::models::Relationship>> {
+        let url = format!("{}/api/v1/accounts/relationships", self.client.base_url());
+        let mut req = self.client.http_client().get(&url);
+        for id in ids {
+            req = req.query(&[("id[]", id)]);
         }
         self.client.send(req).await
     }
