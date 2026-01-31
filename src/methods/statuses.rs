@@ -203,4 +203,19 @@ impl<'a> StatusesHandler<'a> {
         let req = self.client.http_client().post(&url);
         self.client.send(req).await
     }
+
+    /// Fetches the context (ancestors and descendants) for a status.
+    ///
+    /// Parameters:
+    /// - `id`: The ID of the status to fetch context for.
+    ///
+    /// Returns:
+    /// - `Result<Context>`: The fetched context.
+    ///
+    /// Corresponds to `GET /api/v1/statuses/:id/context`.
+    pub async fn get_context(&self, id: &str) -> Result<crate::models::status::Context> {
+        let url = format!("{}/api/v1/statuses/{}/context", self.client.base_url(), id);
+        let req = self.client.http_client().get(&url);
+        self.client.send(req).await
+    }
 }

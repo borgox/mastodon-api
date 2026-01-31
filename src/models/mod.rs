@@ -28,6 +28,6 @@ pub use preferences::Preferences;
 pub use push::{WebPushAlerts, WebPushSubscription};
 pub use report::Report;
 pub use search::Search;
-pub use status::Status;
+pub use status::{Context, Status};
 pub use suggestion::Suggestion;
 pub use tag::FeaturedTag;

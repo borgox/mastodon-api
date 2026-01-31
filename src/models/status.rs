@@ -35,3 +35,12 @@ pub struct Status {
     /// The account that created the status.
     pub account: Account,
 }
+
+/// Represents the context of a status (ancestors and descendants).
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Context {
+    /// Ancestors in the conversation tree.
+    pub ancestors: Vec<Status>,
+    /// Descendants in the conversation tree.
+    pub descendants: Vec<Status>,
+}
